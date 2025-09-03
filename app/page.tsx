@@ -4,7 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { useCart } from "@/hooks/use-cart"
 import { Smartphone } from "lucide-react"
 import { getCategoryImage, getFoodImage } from "@/lib/image-mapping"
 import PWAGuide from "@/components/pwa-guide"
@@ -17,6 +18,8 @@ const FEATURED = [
 ]
 
 export default function HomePage() {
+  const { add } = useCart();
+  
   return (
     <main className="flex-1">
       {/* Hero */}
@@ -120,31 +123,47 @@ export default function HomePage() {
           <h2 className="mb-8 text-center text-2xl font-bold tracking-tight md:text-3xl">Best Sellers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURED.map((item) => (
-              <div key={item.id} className="group relative">
-                <div className="aspect-square overflow-hidden rounded-lg border bg-background">
-                  <Image
-                    src={getFoodImage(item.name, item.category)}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <div className="mt-3 text-center">
-                  <Badge variant="outline" className="mb-1">
-                    {item.category}
-                  </Badge>
-                  <h3 className="font-medium">{item.name}</h3>
-                  <div className="flex justify-center gap-2">
+              <Card key={item.id} className="flex flex-col h-full justify-between">
+                <CardContent className="flex flex-col items-center p-4">
+                  <div className="w-full h-36 relative rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                    <Image
+                      src={getFoodImage(item.name, item.category)}
+                      alt={item.name}
+                      width={120}
+                      height={120}
+                      className="object-cover rounded-lg transition-transform group-hover:scale-105"
+                    />
+                  </div>
+                  <Badge variant="outline" className="mt-3 mb-1">{item.category}</Badge>
+                  <h3 className="font-medium text-base text-center mb-1">{item.name}</h3>
+                  <div className="flex justify-center gap-2 mb-2">
                     <span className="text-muted-foreground line-through">₹{item.price}</span>
                     <span className="font-semibold text-primary">₹{item.offerPrice}</span>
                   </div>
-                  <div className="mt-3">
-                    <Button asChild>
-                      <Link href={`/menu/${item.id}`}>View</Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+                <CardFooter className="flex justify-center gap-2 pt-0 pb-4">
+                  <Button asChild size="sm" className="bg-red-600 text-white">
+                    <Link href={`/menu/${item.id}`}>View</Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-600 text-red-600 hover:bg-red-50"
+                    onClick={() =>
+                      add({
+                        id: item.id,
+                        name: item.name,
+                        price: item.offerPrice,
+                        qty: 1,
+                        image: getFoodImage(item.name, item.category),
+                        category: item.category,
+                      })
+                    }
+                  >
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         </div>
