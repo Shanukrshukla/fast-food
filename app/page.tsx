@@ -1,0 +1,194 @@
+"use client"
+
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Smartphone } from "lucide-react"
+import { getCategoryImage, getFoodImage } from "@/lib/image-mapping"
+import PWAGuide from "@/components/pwa-guide"
+
+const FEATURED = [
+  { id: "hakka-noodles", name: "Hakka Noodles", price: 149, offerPrice: 129, category: "Noodles" },
+  { id: "veg-momos", name: "Veg Momos (8pc)", price: 129, offerPrice: 109, category: "Momos" },
+  { id: "veg-fried-rice", name: "Veg Fried Rice", price: 149, offerPrice: 129, category: "Rice" },
+  { id: "chilli-paneer", name: "Chilli Paneer", price: 199, offerPrice: 179, category: "Starters" },
+]
+
+export default function HomePage() {
+  return (
+    <main className="flex-1">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-red-600/10 via-yellow-100/30 to-white">
+        <div className="container relative px-4 py-12 md:px-6 md:py-20 lg:py-28">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            {/* Left Content */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-xs shadow-sm">
+                <span className="font-medium text-red-600">🔥 New</span>
+                <span className="text-gray-600">Combos starting ₹249</span>
+              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="text-red-600">Chinese Adda</span> — Taste That Brings You Back
+              </h1>
+              <p className="max-w-[600px] text-gray-600 md:text-lg">
+                Freshly tossed noodles, juicy momos, sizzling starters, and comforting soups.
+                <br /> Order now for <span className="font-semibold text-red-600">quick delivery</span>.
+              </p>
+                             <div className="flex flex-col sm:flex-row gap-4">
+                 <Button size="lg" asChild className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                   <Link href="/menu">Order Now</Link>
+                 </Button>
+                 <Button
+                   size="lg"
+                   variant="outline"
+                   asChild
+                   className="border-red-600 text-red-600 hover:bg-red-50"
+                 >
+                   <Link href="/offers">View Offers</Link>
+                 </Button>
+               </div>
+               <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-2 text-sm text-gray-500">
+                   <Smartphone className="h-4 w-4" />
+                   <span>Install our app for the best experience</span>
+                 </div>
+                 <PWAGuide />
+               </div>
+            </div>
+            {/* End of Left Content */}
+
+            {/* Right Image */}
+            <div className="relative flex items-center justify-center rounded-xl overflow-hidden shadow-xl bg-white">
+              <Image
+                src="/momos.png"
+                alt="Chinese Adda Hero Dish"
+                width={800}
+                height={800}
+                className="object-cover rounded-lg hover:scale-105 transition-transform duration-500"
+                priority
+              />
+              {/* Floating badge */}
+              <div className="absolute top-4 right-4 bg-yellow-400 text-red-700 text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                ⭐ Best Seller
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="bg-muted py-12 md:py-16">
+        <div className="container px-4 md:px-6">
+          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight md:text-3xl">Browse Categories</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+            {[
+              { label: "Noodles", q: "noodles" },
+              { label: "Momos", q: "momos" },
+              { label: "Rice", q: "rice" },
+              { label: "Starters", q: "starters" },
+              { label: "Soups", q: "soups" },
+              { label: "Combos", q: "combos" },
+            ].map((c) => (
+              <Link
+                key={c.q}
+                href={`/menu?category=${c.q}`}
+                className="group relative overflow-hidden rounded-lg border bg-background hover:shadow"
+              >
+                <div className="relative aspect-square">
+                  <Image
+                    src={getCategoryImage(c.label)}
+                    alt={c.label}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 w-full p-3">
+                    <h3 className="text-sm font-semibold text-white">{c.label}</h3>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured */}
+      <section className="py-12 md:py-16">
+        <div className="container px-4 md:px-6">
+          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight md:text-3xl">Best Sellers</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {FEATURED.map((item) => (
+              <div key={item.id} className="group relative">
+                <div className="aspect-square overflow-hidden rounded-lg border bg-background">
+                  <Image
+                    src={getFoodImage(item.name, item.category)}
+                    alt={item.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+                <div className="mt-3 text-center">
+                  <Badge variant="outline" className="mb-1">
+                    {item.category}
+                  </Badge>
+                  <h3 className="font-medium">{item.name}</h3>
+                  <div className="flex justify-center gap-2">
+                    <span className="text-muted-foreground line-through">₹{item.price}</span>
+                    <span className="font-semibold text-primary">₹{item.offerPrice}</span>
+                  </div>
+                  <div className="mt-3">
+                    <Button asChild>
+                      <Link href={`/menu/${item.id}`}>View</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="bg-muted py-12 md:py-16">
+        <div className="container px-4 md:px-6">
+          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight md:text-3xl">Why Chinese Adda</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <h3 className="font-semibold mb-1">Fast Delivery</h3>
+                <p className="text-sm text-muted-foreground">Hot food at your door in minutes.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <h3 className="font-semibold mb-1">Fresh Ingredients</h3>
+                <p className="text-sm text-muted-foreground">Quality you can taste in every bite.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 text-center">
+                <h3 className="font-semibold mb-1">Great Value</h3>
+                <p className="text-sm text-muted-foreground">Pocket-friendly combos and daily offers.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-12 md:py-16">
+        <div className="container px-4 md:px-6 text-center">
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Hungry?</h2>
+          <p className="mt-2 text-muted-foreground">Install the app-like experience and order in seconds.</p>
+          <div className="mt-4">
+            <Button asChild>
+              <Link href="/menu">Start Order</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
+}
