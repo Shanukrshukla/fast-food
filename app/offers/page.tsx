@@ -26,11 +26,36 @@ export default function OffersPage() {
     };
   }, []);
 
-  const offers = [
-    { title: "🔥 Combo Saver", desc: "Noodles + Momos at just ₹249", code: "COMBO249", color: "from-red-500 to-orange-400" },
-    { title: "🥟 Momo Monday", desc: "Flat ₹30 off on all momos", code: "MOMO30", color: "from-pink-500 to-yellow-400" },
-    { title: "🍚 Rice Rush", desc: "₹20 off on fried rice", code: "RICE20", color: "from-green-500 to-teal-400" },
-  ]
+
+  const [offers, setOffers] = React.useState<any[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState("")
+
+  React.useEffect(() => {
+    setLoading(true)
+    fetch("http://localhost:5000/api/offers")
+      .then((res) => res.json())
+      .then((data) => {
+        // Map backend offers to frontend shape if needed
+        const mapped = Array.isArray(data)
+          ? data.map((o: any) => ({
+              code: o.code || o._id || o.title,
+              title: o.title,
+              desc: o.description || o.desc,
+              color: o.color || "from-red-400 to-yellow-400"
+            }))
+          : []
+        setOffers(mapped)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError("Failed to load offers.")
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <main className="container mx-auto max-w-3xl px-4 py-8">Loading offers...</main>
+  if (error) return <main className="container mx-auto max-w-3xl px-4 py-8 text-red-600">{error}</main>
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code)

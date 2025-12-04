@@ -8,23 +8,50 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/hooks/use-cart"
 import { getFoodImage } from "@/lib/image-mapping"
 
-const MENU = [
-  { id: "hakka-noodles", name: "Hakka Noodles", price: 149, category: "noodles" },
-  { id: "schezwan-noodles", name: "Schezwan Noodles", price: 159, category: "noodles" },
-  { id: "veg-momos", name: "Veg Momos (8pc)", price: 129, category: "momos" },
-  { id: "paneer-momos", name: "Paneer Momos (8pc)", price: 159, category: "momos" },
-  { id: "veg-fried-rice", name: "Veg Fried Rice", price: 149, category: "rice" },
-  { id: "schezwan-fried-rice", name: "Schezwan Fried Rice", price: 159, category: "rice" },
-  { id: "chilli-paneer", name: "Chilli Paneer", price: 199, category: "starters" },
-  { id: "hot-sour-soup", name: "Hot & Sour Soup", price: 129, category: "soups" },
-  { id: "combo-1", name: "Combo: Noodles + Momos", price: 249, category: "combos" },
-]
+import { useEffect, useState } from "react"
+
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image?: string;
+}
 
 export default function MenuPage() {
   const { add } = useCart()
   const params = useSearchParams()
   const filter = params.get("category") || "all"
-  const items = filter === "all" ? MENU : MENU.filter((m) => m.category === filter)
+  const [items, setItems] = useState<MenuItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    setLoading(true)
+    fetch(`http://localhost:5000/api/menu${filter !== "all" ? `?category=${filter}` : ""}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // Map backend data to frontend shape
+        const mapped = Array.isArray(data)
+          ? data.map((item: any) => ({
+              id: item._id,
+              name: item.name,
+              price: item.price,
+              category: item.category,
+              image: item.image
+            }))
+          : []
+        setItems(mapped)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError("Failed to load menu items.")
+        setLoading(false)
+      })
+  }, [filter])
+
+  if (loading) return <main className="container mx-auto max-w-7xl px-4 py-10">Loading menu...</main>
+  if (error) return <main className="container mx-auto max-w-7xl px-4 py-10 text-red-600">{error}</main>
 
   return (
     <main className="container mx-auto max-w-7xl px-4 py-10">
@@ -61,7 +88,7 @@ export default function MenuPage() {
             {/* Food Image */}
             <div className="relative h-48 w-full overflow-hidden">
               <Image
-                src={getFoodImage(i.name, i.category)}
+                src={getFoodImage(i.name, i.category) || i.image || "/placeholder.jpg"}
                 alt={i.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -91,7 +118,7 @@ export default function MenuPage() {
                       name: i.name,
                       price: i.price,
                       qty: 1,
-                      image: getFoodImage(i.name, i.category),
+                      image: getFoodImage(i.name, i.category) || i.image,
                       category: i.category,
                     })
                   }
@@ -103,7 +130,6 @@ export default function MenuPage() {
           </div>
         ))}
       </div>
-      
       {/* CSS Keyframes for animations */}
       <style jsx global>{`
         @keyframes fadeInUp {

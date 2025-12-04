@@ -106,12 +106,12 @@ export default function Header() {
               <span className="text-xs">App</span>
             </Badge>
           )}
-          <Button variant="ghost" size="icon" className="relative" asChild>
-            <Link href="/profile">
+            <Button variant="ghost" size="icon" className="relative" asChild>
+            <Link href={typeof window !== "undefined" && localStorage.getItem("user") ? "/profile" : "/login"}>
               <User className="h-5 w-5" />
               <span className="sr-only">Profile</span>
             </Link>
-          </Button>
+            </Button>
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart">
               <ShoppingCart className="h-5 w-5" />

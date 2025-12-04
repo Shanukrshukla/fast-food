@@ -39,26 +39,38 @@ export default function HomePage() {
                 Freshly tossed noodles, juicy momos, sizzling starters, and comforting soups.
                 <br /> Order now for <span className="font-semibold text-red-600">quick delivery</span>.
               </p>
-                             <div className="flex flex-col sm:flex-row gap-4">
-                 <Button size="lg" asChild className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
-                   <Link href="/menu">Order Now</Link>
-                 </Button>
-                 <Button
-                   size="lg"
-                   variant="outline"
-                   asChild
-                   className="border-red-600 text-red-600 hover:bg-red-50"
-                 >
-                   <Link href="/offers">View Offers</Link>
-                 </Button>
-               </div>
-               <div className="flex items-center gap-3">
-                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                   <Smartphone className="h-4 w-4" />
-                   <span>Install our app for the best experience</span>
-                 </div>
-                 <PWAGuide />
-               </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" asChild className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                  <Link href="/menu">Order Now</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="border-red-600 text-red-600 hover:bg-red-50"
+                >
+                  <Link href="/offers">View Offers</Link>
+                </Button>
+              </div>
+              {/* Login/Register/Forgot Password CTA
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                <Button asChild size="md" className="bg-blue-600 text-white">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild size="md" variant="outline" className="border-blue-600 text-blue-600">
+                  <Link href="/register">Register</Link>
+                </Button>
+                <Button asChild size="md" variant="ghost" className="text-gray-600">
+                  <Link href="/forgot-password">Forgot Password?</Link>
+                </Button>
+              </div> */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Smartphone className="h-4 w-4" />
+                  <span>Install our app for the best experience</span>
+                </div>
+                <PWAGuide />
+              </div>
             </div>
             {/* End of Left Content */}
 

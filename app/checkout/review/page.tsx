@@ -3,58 +3,61 @@ import Image from "next/image"
 import Link from "next/link"
 import { CreditCard, Edit2 } from "lucide-react"
 
+import { useEffect, useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import { getFoodImage } from "@/lib/image-mapping"
 
 export default function ReviewOrderPage() {
-  const cartItems = [
-    {
-    name: "Cheese Burger",
-    image: "/images/cheese-burger.jpg",
-    price: 8.99,
-    quantity: 2,
-    description: "Juicy grilled beef patty with cheddar cheese, lettuce, tomato, and our special sauce on a toasted bun.",
-  },
-  {
-    name: "Crispy Chicken Sandwich",
-    image: "/images/crispy-chicken-sandwich.jpg",
-    price: 7.49,
-    quantity: 1,
-    description: "Crispy fried chicken breast, pickles, lettuce, and mayo on a soft potato roll.",
-  },
-  {
-    name: "French Fries",
-    image: "/images/french-fries.jpg",
-    price: 3.49,
-    quantity: 1,
-    description: "Golden, crispy French fries made from fresh potatoes.",
-  }
-  
-  ]
+  const [cartItems, setCartItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = 5.99
-  const tax = subtotal * 0.08
+  useEffect(() => {
+    setLoading(true)
+    fetch("/api/cart", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCartItems(data.items || [])
+        setLoading(false)
+      })
+      .catch(() => {
+        setError("Failed to load cart.")
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <div className="container px-4 py-8 md:px-6 md:py-12">Loading cart...</div>
+  if (error) return <div className="container px-4 py-8 md:px-6 md:py-12 text-red-600">{error}</div>
+
+
+  const subtotal = cartItems.reduce((sum: number, item: any) => sum + item.price * item.qty, 0)
+  const shipping = 25
+  const tax = Math.round(subtotal * 0.05)
   const total = subtotal + shipping + tax
 
+  // TODO: Replace with real user info from /api/profile or /api/orders if available
   const shippingInfo = {
-    name: "John Doe",
-    address: "123 Main St, Apt 4B",
-    city: "New York",
-    state: "NY",
-    zip: "10001",
-    country: "United States",
-    email: "john.doe@example.com",
-    phone: "(123) 456-7890",
+    name: "Your Name",
+    address: "Your Address",
+    city: "City",
+    state: "State",
+    zip: "Zip",
+    country: "Country",
+    email: "your@email.com",
+    phone: "Phone",
   }
-
   const paymentInfo = {
     method: "Credit Card",
     cardNumber: "**** **** **** 4242",
     expiry: "12/25",
-    nameOnCard: "John Doe",
+    nameOnCard: "Your Name",
   }
 
   return (
@@ -143,18 +146,18 @@ export default function ReviewOrderPage() {
               </Button>
             </div>
             <div className="space-y-4">
-              {cartItems.map((item) => (
+              {cartItems.map((item: any) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
                     <Image src={item.image || getFoodImage(item.name)} alt={item.name} fill className="object-cover" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                    <p className="text-sm text-muted-foreground">Quantity: {item.qty}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</p>
+                    <p className="font-medium">₹{(item.price * item.qty).toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)} each</p>
                   </div>
                 </div>
               ))}

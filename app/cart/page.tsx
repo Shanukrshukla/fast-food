@@ -8,13 +8,78 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { useCart } from "@/hooks/use-cart"
+import { useEffect, useState } from "react"
 import { getFoodImage } from "@/lib/image-mapping"
 
 export default function CartPage() {
-  const { items, updateQty, remove, clear, total } = useCart()
+  const [items, setItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+  useEffect(() => {
+    setLoading(true)
+    fetch("http://localhost:5000/api/cart", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // Map backend cart items to frontend shape
+        const mapped = Array.isArray(data.items)
+          ? data.items.map((item: any) => ({
+              id: item.menuItem?._id || item.menuItem || item._id,
+              name: item.menuItem?.name || item.name,
+              price: item.menuItem?.price || item.price,
+              qty: item.quantity || item.qty,
+              image: item.menuItem?.image || item.image,
+              category: item.menuItem?.category || item.category
+            }))
+          : []
+        setItems(mapped)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError("Failed to load cart.")
+        setLoading(false)
+      })
+  }, [])
+
+  const updateQty = (id: string, qty: number) => {
+    fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({ menuItem: id, quantity: qty })
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setItems((prev: any[]) => prev.map((i: any) => i.id === id ? { ...i, qty } : i))
+      })
+  }
+
+  const remove = (id: string) => {
+    fetch("http://localhost:5000/api/cart/remove", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({ menuItem: id })
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setItems((prev: any[]) => prev.filter((i: any) => i.id !== id))
+      })
+  }
+
+  const clear = () => {
+    setItems([])
+  }
+
+  const subtotal = items.reduce((sum: number, i: any) => sum + i.price * i.qty, 0)
   const delivery = items.length > 0 ? 25 : 0
   const tax = Math.round(subtotal * 0.05)
   const grandTotal = subtotal + delivery + tax
@@ -32,7 +97,11 @@ export default function CartPage() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12">Loading cart...</div>
+      ) : error ? (
+        <div className="text-center py-12 text-red-600">{error}</div>
+      ) : items.length === 0 ? (
         <div className="text-center py-12">
           <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
           <p className="text-muted-foreground mb-8">Add your favorite noodles, momos, and rice bowls.</p>
